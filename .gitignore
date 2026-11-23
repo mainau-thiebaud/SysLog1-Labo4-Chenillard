@@ -1,0 +1,13 @@
+# Fichiers temporaires LaTeX
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+*.lot
+*.lof
+
+# Sauvegardes automatiques de Logisim
+*.autosave
