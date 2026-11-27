@@ -31,6 +31,8 @@
 \usepackage{pdfpages}
 \usepackage{color}
 \usepackage{float}
+\usepackage{caption}
+\usepackage{needspace}
 \usepackage{tikz}
 \usetikzlibrary{fit}
 
@@ -42,16 +44,27 @@
     \centering
     \IfFileExists{images/#1.png}{%
       \includegraphics[width=0.9\textwidth,height=0.5\textheight,keepaspectratio]{images/#1.png}}{%
+    \IfFileExists{images/#1.jpg}{%
+      \includegraphics[width=0.9\textwidth,height=0.6\textheight,keepaspectratio]{images/#1.jpg}}{%
       \if\relax\detokenize{#4}\relax
         \fbox{\parbox[c][4cm][c]{0.8\textwidth}{\centering\color{red}
           Capture à ajouter : \texttt{images/\detokenize{#1}.png}}}%
       \else
         \resizebox{\ifdim\width>\textwidth\textwidth\else\width\fi}{!}{#4}%
-      \fi}
+      \fi}}
     \caption{#2}
     \label{#3}
   \end{figure}}
 
+
+% \extrait{fichier}{hauteur}{légende}{label} : extrait de schéma encadré et centré
+\newcommand{\extrait}[4]{%
+  \begin{figure}[H]
+    \centering
+    \setlength{\fboxsep}{4pt}\fbox{\includegraphics[height=#2,width=0.85\textwidth,keepaspectratio]{images/#1}}
+    \caption{#3}
+    \label{#4}
+  \end{figure}}
 
 % fichier avec les constantes (à adapter pour les étudiants)
 \input{chapitres/constantes.tex}
@@ -110,18 +123,18 @@
 	\input{chapitres/Conclusion.tex}
 	
 	%Section pour la signature
+	\needspace{7\baselineskip}
 	\section{Signatures}
   
     Yverdon-les-Bains le \today \\
-    
-	\vspace{\baselineskip}
-	\begin{flushright}
-      \nomAuteur
-    \end{flushright}
+
+	\vspace{1cm}
+	\noindent
+	\begin{tabular}{@{}p{0.45\textwidth}@{\hspace{0.1\textwidth}}p{0.45\textwidth}@{}}
+	  \rule{\linewidth}{0.4pt} \\
+	   M. Thiébaud
+	\end{tabular}
   
-	% annexes
-	\newpage
-	\input{chapitres/Annexe.tex}
 
 	% si des annexes sont nécessaires ajouter :
 	% \section{Annexes}

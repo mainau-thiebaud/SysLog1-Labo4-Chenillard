@@ -1,3 +1,21 @@
 \section{Réalisation}
 
-% TODO
+Les trois circuits ont été réalisés dans le fichier \texttt{srg8\_ld\_sh.circ}, dans les circuits préparés par la donnée.
+
+\subsection{Registre 4 bits \texttt{srg4\_sh\_r}}
+
+Les quatre cellules sont chaînées de gauche à droite : la première reçoit \texttt{ser\_r\_i}, et chacune des suivantes reçoit la sortie de sa voisine. L'enable, l'horloge et le reset sont communs aux quatre bascules. Un splitter regroupe les sorties dans le bus \texttt{reg\_o}, avec la cellule d'entrée sur le bit 3.
+
+\capture{p1_schema}{Schéma Logisim du registre 4 bits \texttt{srg4\_sh\_r}}{fig:p1_schema}{}
+
+\subsection{Registre 8 bits \texttt{srg8\_ld\_sh}}
+
+Les valeurs décalées sont obtenues sans logique, par simple recâblage des bits avec des splitters. Pour le décalage à droite, chaque bit $i$ reçoit $Q_{i+1}$ et le bit 7 reçoit \texttt{ser\_r\_i}. Pour le décalage à gauche, chaque bit $i$ reçoit $Q_{i-1}$ et le bit 0 reçoit \texttt{ser\_l\_i}. La sortie du registre revient aussi sur l'entrée 0 du multiplexeur d'enable pour le maintien.
+
+\capture{p2_schema}{Schéma Logisim du registre 8 bits \texttt{srg8\_ld\_sh}}{fig:p2_schema}{}
+
+\subsection{Chenillard}
+
+Le chenillard instancie \texttt{srg8\_ld\_sh} sans le modifier. Les entrées de commande sont reliées directement, \texttt{pattern\_i} va sur \texttt{val\_i}, et la sortie \texttt{reg\_o} pilote les LED. Un splitter extrait $Q_0$ et $Q_7$ de la sortie pour les reboucler sur les entrées série.
+
+\capture{p3_schema}{Schéma Logisim du \texttt{chenillard}}{fig:p3_schema}{}

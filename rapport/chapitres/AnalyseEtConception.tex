@@ -1,3 +1,25 @@
 \section{Analyse et conception}
 
-% TODO
+\subsection{Partie 1 : registre à décalage à droite 4 bits}
+
+Si \texttt{en\_sh\_i} = 1, le registre se décale à droite à chaque flanc montant de l'horloge et \texttt{ser\_r\_i} entre en $Q_3$. Sinon, il garde son état. Chaque cellule est donc une bascule D précédée d'un multiplexeur qui choisit entre maintien (entrée 0, sa propre sortie) et décalage (entrée 1, la sortie de la cellule voisine). Le reset est asynchrone et agit directement sur les bascules.
+
+\extrait{circ_p1_cellule.png}{3cm}{Une cellule du registre 4 bits : multiplexeur et bascule D}{fig:circ_p1_cellule}
+
+\subsection{Partie 2 : registre 8 bits avec chargement et décalage}
+
+Le registre a trois fonctions synchrones, par ordre de priorité : chargement, décalage et maintien. Elles sont réalisées par trois multiplexeurs 8 bits en cascade placés devant le registre :
+\begin{itemize}
+  \item le premier (\texttt{Right\_nLeft\_i}) choisit entre la valeur décalée à droite et celle décalée à gauche ;
+  \item le deuxième (\texttt{en\_sh\_i}) choisit entre cette valeur décalée et l'état actuel (maintien) ;
+  \item le dernier (\texttt{load\_i}) impose \texttt{val\_i}, ce qui rend le chargement prioritaire.
+\end{itemize}
+Le reset asynchrone passe avant tout. L'entrée WE du registre est fixée à 1.
+
+\extrait{circ_p2_mux.png}{4cm}{Chaîne de multiplexeurs devant le registre 8 bits}{fig:circ_p2_mux}
+
+\subsection{Partie 3 : chenillard}
+
+Le chenillard fait tourner le pattern de manière cyclique : le bit qui sort d'un côté du registre doit rentrer de l'autre. Pour cela, $Q_0$ est rebouclé sur \texttt{ser\_r\_i} (rotation à droite) et $Q_7$ sur \texttt{ser\_l\_i} (rotation à gauche). Une porte NOT convertit \texttt{nReset\_i}, actif bas, en reset actif haut pour le registre.
+
+\extrait{circ_p3_rebouclage.png}{5cm}{Rebouclage de $Q_0$ et $Q_7$ sur les entrées série}{fig:circ_p3_rebouclage}

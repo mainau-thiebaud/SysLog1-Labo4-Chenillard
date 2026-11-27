@@ -1,3 +1,50 @@
+\needspace{16\baselineskip}
 \section{Simulation}
 
-% TODO
+Chaque partie a été simulée manuellement dans son circuit \texttt{\_sim}. Les tests de priorité sont indiqués en gras.
+
+\subsection{Partie 1 : registre 4 bits}
+
+Le chronogramme se décompose en cinq tests :
+\begin{enumerate}\sloppy
+  \item \textbf{Reset prioritaire sur le décalage} : \texttt{reset\_sti} = 1 alors que \texttt{en\_sh\_sti} = 1 et \texttt{ser\_r\_sti} = 1. Le registre reste à 0000 malgré les flancs d'horloge.
+  \item Décalage à droite : le reset est relâché. Le `1' de \texttt{ser\_r\_sti} entre par $Q_3$ et descend vers $Q_0$ : 1000, 1100, 1110, 1111.
+  \item Maintien : \texttt{en\_sh\_sti} = 0 et \texttt{ser\_r\_sti} passe à 0, mais le registre garde 1111. L'enable bloque bien le décalage.
+  \item Sortie des bits par $Q_0$ : \texttt{en\_sh\_sti} = 1 et \texttt{ser\_r\_sti} = 0. Des 0 entrent par $Q_3$ : 0111, 0011.
+  \item \textbf{Reset asynchrone} : \texttt{reset\_sti} passe à 1 entre deux flancs. Le registre passe à 0000 tout de suite, sans attendre l'horloge.
+\end{enumerate}
+
+\capture{p1_chrono}{Chronogramme de \texttt{srg4\_sh\_r\_sim}}{fig:p1_chrono}{}
+
+\needspace{12\baselineskip}
+\subsection{Partie 2 : registre 8 bits}
+
+Le chronogramme se décompose en huit tests :
+\begin{enumerate}\sloppy
+  \item \textbf{Reset prioritaire sur le load} : \texttt{reset\_sti} = 1, \texttt{load\_sti} = 1 et \texttt{Val\_sti} = 0xFF. Le registre reste à 00000000.
+  \item Chargement synchrone : \texttt{reset\_sti} = 0 et \texttt{Val\_sti} = 0x81. Rien ne change avant le flanc, puis le registre vaut 10000001.
+  \item Décalage à droite : \texttt{load\_sti} = 0, \texttt{en\_sh\_sti} = 1, \texttt{Right\_nLeft\_sti} = 1 et \texttt{ser\_r\_sti} = 0. On obtient 01000000, puis 00100000.
+  \item Entrée série à droite : \texttt{ser\_r\_sti} = 1. Le `1' entre par $Q_7$ : 10010000.
+  \item Décalage à gauche : \texttt{Right\_nLeft\_sti} = 0 et \texttt{ser\_l\_sti} = 1. Le `1' entre par $Q_0$ : 00100001, puis 01000011.
+  \item Maintien : \texttt{en\_sh\_sti} = 0. Le registre garde 01000011 même si on change le sens et les entrées série.
+  \item \textbf{Load prioritaire sur l'enable} : \texttt{load\_sti} = 1, \texttt{en\_sh\_sti} = 1 et \texttt{Val\_sti} = 0x3C. Le registre charge 00111100 au lieu de décaler.
+  \item \textbf{Reset asynchrone} : \texttt{reset\_sti} passe à 1 entre deux flancs. Le registre passe à 00000000 tout de suite.
+\end{enumerate}
+
+\capture{p2_chrono}{Chronogramme de \texttt{srg8\_ld\_sh\_sim}}{fig:p2_chrono}{}
+
+\needspace{12\baselineskip}
+\subsection{Partie 3 : chenillard}
+
+Le chronogramme se décompose en sept tests :
+\begin{enumerate}\sloppy
+  \item \textbf{Reset prioritaire sur le load} : \texttt{nReset\_sti} = 0 (actif bas), \texttt{load\_sti} = 1, \texttt{enable\_sti} = 1 et \texttt{pattern\_sti} = 0x01. Les LED restent à 00000000.
+  \item \textbf{Load prioritaire sur l'enable} : \texttt{nReset\_sti} = 1. Au flanc suivant, le pattern est chargé (00000001) au lieu de tourner.
+  \item Rotation à droite : \texttt{load\_sti} = 0 et \texttt{Right\_nLeft\_sti} = 1, pendant au moins 9 flancs. Le `1' passe de 10000000 à 00000001, puis revient en~10000000 : la rotation est cyclique.
+  \item Rotation à gauche : \texttt{Right\_nLeft\_sti} = 0. Le `1' remonte : 00000001, 00000010, 00000100, etc.
+  \item Pause : \texttt{enable\_sti} = 0. Le pattern reste figé.
+  \item Rechargement : \texttt{enable\_sti} = 1, \texttt{load\_sti} = 1 et \texttt{pattern\_sti} = 0x0F, ce qui donne 00001111. Avec \texttt{load\_sti} = 0, la rotation reprend avec plusieurs bits allumés : 10000111, 11000011.
+  \item \textbf{Reset asynchrone} : \texttt{nReset\_sti} passe à 0 entre deux flancs. Les LED passent à 00000000 tout de suite.
+\end{enumerate}
+
+\capture{p3_chrono}{Chronogramme de \texttt{chenillard\_sim}}{fig:p3_chrono}{}

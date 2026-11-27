@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project integrity="d328355135d20c82dc4121c4fef0bf822a3e0a98" source="4.0.0.t" version="1.0">
+<project integrity="2d6d2c8b5380ad24a17a52d0e78bfe3fe3d0afa5" source="4.0.0.t" version="1.0">
   This file is intended to be loaded by Logisim-evolution v4.0.0.t(https://github.com/logisim-evolution/).
 
   <lib desc="#Wiring" name="0">
@@ -439,6 +439,10 @@ end type_architecture;&#13;
       <a name="version" val="2.16.8.t"/>
     </comp>
     <comp lib="0" loc="(890,120)" name="Splitter">
+      <a name="bit0" val="3"/>
+      <a name="bit1" val="2"/>
+      <a name="bit2" val="1"/>
+      <a name="bit3" val="0"/>
       <a name="date" val="2026-11-20T13:22:28+0100"/>
       <a name="facing" val="west"/>
       <a name="fanout" val="4"/>
