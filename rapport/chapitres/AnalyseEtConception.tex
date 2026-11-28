@@ -1,21 +1,86 @@
 \section{Analyse et conception}
 
+\subsection{Entrées et sorties}
+
+Les tableaux suivants décrivent les broches de chaque circuit, telles que données dans l'énoncé. Le suffixe \texttt{\_i} désigne une entrée et \texttt{\_o} une sortie.
+
+\begin{table}[H]
+  \centering
+  \small
+  \begin{tabular}{l c p{9.5cm}}
+    \hline
+    \textbf{Nom} & \textbf{Taille} & \textbf{Description} \\
+    \hline
+    \texttt{reset\_i} & 1 & Remise à zéro asynchrone du registre \\
+    \texttt{clock\_i} & 1 & Horloge du système séquentiel \\
+    \texttt{en\_sh\_i} & 1 & Autorisation du décalage à droite \\
+    \texttt{ser\_r\_i} & 1 & Entrée série pour le décalage à droite \\
+    \texttt{reg\_o}   & 4 & État du registre à décalage \\
+    \hline
+  \end{tabular}
+  \caption{Entrées/sorties du registre 4 bits \texttt{srg4\_sh\_r}}
+  \label{tab:io_p1}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \small
+  \begin{tabular}{l c p{9.5cm}}
+    \hline
+    \textbf{Nom} & \textbf{Taille} & \textbf{Description} \\
+    \hline
+    \texttt{reset\_i} & 1 & Remise à zéro asynchrone du registre \\
+    \texttt{clock\_i} & 1 & Horloge du système séquentiel \\
+    \texttt{load\_i}  & 1 & Chargement parallèle de \texttt{val\_i} (fonction prioritaire) \\
+    \texttt{en\_sh\_i} & 1 & Autorisation du décalage à droite ou à gauche \\
+    \texttt{Right\_nLeft\_i} & 1 & Sens du décalage : 1 = droite, 0 = gauche \\
+    \texttt{ser\_r\_i} & 1 & Entrée série pour le décalage à droite \\
+    \texttt{ser\_l\_i} & 1 & Entrée série pour le décalage à gauche \\
+    \texttt{val\_i}   & 8 & Valeur à charger dans le registre \\
+    \texttt{reg\_o}   & 8 & État du registre à décalage \\
+    \hline
+  \end{tabular}
+  \caption{Entrées/sorties du registre 8 bits \texttt{srg8\_ld\_sh}}
+  \label{tab:io_p2}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \small
+  \begin{tabular}{l c p{9.5cm}}
+    \hline
+    \textbf{Nom} & \textbf{Taille} & \textbf{Description} \\
+    \hline
+    \texttt{nReset\_i} & 1 & Remise à zéro asynchrone, active à l'état bas \\
+    \texttt{clock\_i}  & 1 & Horloge du système séquentiel \\
+    \texttt{load\_i}   & 1 & Chargement du pattern \texttt{pattern\_i} \\
+    \texttt{en\_i}     & 1 & Autorisation de la rotation du pattern \\
+    \texttt{right\_nLeft\_i} & 1 & Sens de la rotation : 1 = droite, 0 = gauche \\
+    \texttt{pattern\_i} & 8 & Pattern à charger dans le chenillard \\
+    \texttt{led\_o}    & 8 & État des 8 LED du chenillard \\
+    \hline
+  \end{tabular}
+  \caption{Entrées/sorties du \texttt{chenillard}}
+  \label{tab:io_p3}
+\end{table}
+
+
 \subsection{Partie 1 : registre à décalage à droite 4 bits}
 
-Si \texttt{en\_sh\_i} = 1, le registre se décale à droite à chaque flanc montant de l'horloge et \texttt{ser\_r\_i} entre en $Q_3$. Sinon, il garde son état. Chaque cellule est donc une bascule D précédée d'un multiplexeur qui choisit entre maintien (entrée 0, sa propre sortie) et décalage (entrée 1, la sortie de la cellule voisine). Le reset est asynchrone et agit directement sur les bascules.
+Si \texttt{en\_sh\_i} = 1, le registre se décale à droite à chaque flanc montant de l'horloge. Chaque cellule est donc une bascule D précédée d'un multiplexeur qui choisit entre maintien (entrée 0, sa propre sortie) et décalage (entrée 1, la sortie de la cellule voisine). Le reset est asynchrone et agit directement sur les bascules.
 
 \extrait{circ_p1_cellule.png}{3cm}{Une cellule du registre 4 bits : multiplexeur et bascule D}{fig:circ_p1_cellule}
 
 \subsection{Partie 2 : registre 8 bits avec chargement et décalage}
 
-Le registre a trois fonctions synchrones, par ordre de priorité : chargement, décalage (à droite ou à gauche) et maintien. Le tableau~\ref{tab:fct_sync} donne l'état futur $Q^+$ du registre au prochain flanc montant de \texttt{clock\_i}, en fonction des entrées de commande. Le reset n'y figure pas car il est asynchrone : tant que \texttt{reset\_i} = 1, le registre vaut 00000000, quelles que soient l'horloge et les autres entrées.
+Le registre a trois fonctions synchrones, par ordre de priorité : chargement, décalage (à droite ou à gauche) et maintien. Le tableau~\ref{tab:fct_sync} donne l'état futur $Q$ du registre au prochain flanc montant de \texttt{clock\_i}, en fonction des entrées de commande. Le reset n'y figure pas car il est asynchrone : tant que \texttt{reset\_i} = 1, le registre vaut 00000000, quelles que soient l'horloge et les autres entrées.
 
 \begin{table}[H]
   \centering
   \small
   \begin{tabular}{c c c l c}
     \hline
-    \texttt{load\_i} & \texttt{en\_sh\_i} & \texttt{Right\_nLeft\_i} & \textbf{Fonction} & $Q^+_7 \dots Q^+_0$ \\
+    \texttt{load\_i} & \texttt{en\_sh\_i} & \texttt{Right\_nLeft\_i} & \textbf{Fonction} & $Q_7 \dots Q_0$ \\
     \hline
     1 & - & - & Chargement parallèle & \texttt{val\_i(7..0)} \\
     0 & 1 & 1 & Décalage à droite    & \texttt{ser\_r\_i}, $Q_7 \dots Q_1$ \\
@@ -23,17 +88,17 @@ Le registre a trois fonctions synchrones, par ordre de priorité : chargement, d
     0 & 0 & - & Maintien             & $Q_7 \dots Q_0$ \\
     \hline
   \end{tabular}
-  \caption{Table des fonctions synchrones de \texttt{srg8\_ld\_sh} (\texttt{-} : valeur indifférente)}
+  \caption{Tableau des fonctions de \texttt{srg8\_ld\_sh} (\texttt{-} : valeur indifférente)}
   \label{tab:fct_sync}
 \end{table}
 
-\texttt{load\_i} n'est soumis à aucune autre condition : le chargement l'emporte donc sur le décalage. \texttt{Right\_nLeft\_i} n'est pris en compte que si \texttt{en\_sh\_i} = 1. Cette table se traduit directement par trois multiplexeurs 8 bits en cascade placés devant le registre :
+\texttt{load\_i} n'est soumis à aucune autre condition : le chargement l'emporte donc sur le décalage. \texttt{Right\_nLeft\_i} n'est pris en compte que si \texttt{en\_sh\_i} = 1. Ce tableau se traduit directement par trois multiplexeurs 8 bits en cascade placés devant le registre :
 \begin{itemize}
   \item le premier (\texttt{Right\_nLeft\_i}) choisit entre la valeur décalée à droite et celle décalée à gauche ;
   \item le deuxième (\texttt{en\_sh\_i}) choisit entre cette valeur décalée et l'état actuel (maintien) ;
   \item le dernier (\texttt{load\_i}) impose \texttt{val\_i}, ce qui rend le chargement prioritaire.
 \end{itemize}
-Le reset asynchrone passe avant tout. L'entrée WE du registre est fixée à 1.
+Le reset asynchrone passe avant tout, et est donc le plus prioritaire.
 
 \extrait{circ_p2_mux.png}{4cm}{Chaîne de multiplexeurs devant le registre 8 bits}{fig:circ_p2_mux}
 

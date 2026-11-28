@@ -3,3 +3,5 @@
 Les trois circuits ont été vérifiés en simulation, et le chenillard fonctionne sur la carte. Pour obtenir la rotation, il a suffi de reboucler les sorties extrêmes du registre sur ses entrées série, sans modifier le registre lui-même.
 
 Les simulations ont aussi confirmé l'ordre des priorités. Le reset est le plus prioritaire : il est asynchrone et remet le registre à zéro immédiatement, sans attendre de flanc d'horloge et quelles que soient les autres entrées. Vient ensuite le chargement parallèle (\texttt{load}), qui l'emporte sur le décalage ou la rotation même lorsque l'enable est actif. Enfin, si ni le reset, ni le load, ni l'enable ne sont actifs, le registre conserve sa valeur.
+
+\vspace{3\baselineskip}

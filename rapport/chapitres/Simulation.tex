@@ -1,26 +1,43 @@
-\needspace{16\baselineskip}
+\newpage
 \section{Simulation}
 
-Chaque partie a été simulée manuellement dans son circuit \texttt{\_sim}. Les tests de priorité et de rebouclage sont indiqués en gras.
-
+Chaque partie a été simulée manuellement sur Logisim dans le but de visualiser les priorités et les rebouclages des systèmes.
 \subsection{Partie 1 : registre 4 bits}
 
-Le chronogramme se décompose en cinq tests :
-\begin{enumerate}\sloppy
-  \item \textbf{Reset prioritaire sur le décalage} : \texttt{reset\_sti} = 1 alors que \texttt{en\_sh\_sti} = 1 et \texttt{ser\_r\_sti} = 1. Le registre reste à 0000 malgré les flancs d'horloge.
-  \item Décalage à droite : le reset est relâché. Le `1' de \texttt{ser\_r\_sti} entre par $Q_3$ et descend vers $Q_0$ : 1000, 1100, 1110, 1111.
-  \item Maintien : \texttt{en\_sh\_sti} = 0 et \texttt{ser\_r\_sti} passe à 0, mais le registre garde 1111. L'enable bloque bien le décalage.
-  \item Sortie des bits par $Q_0$ : \texttt{en\_sh\_sti} = 1 et \texttt{ser\_r\_sti} = 0. Des 0 entrent par $Q_3$ : 0111, 0011.
-  \item \textbf{Reset asynchrone} : \texttt{reset\_sti} passe à 1 entre deux flancs. Le registre passe à 0000 tout de suite, sans attendre l'horloge.
-\end{enumerate}
+Le tableau~\ref{tab:p1_tests} donne, pour chaque flanc montant de
+\texttt{clock\_sti}, la fonction testée et la valeur attendue sur \texttt{reg\_obs}.
+Les valeurs observées sur le chronogramme (figure~\ref{fig:p1_chrono})
+correspondent toutes aux valeurs attendues.
 
-\capture{p1_chrono}{Chronogramme de \texttt{srg4\_sh\_r\_sim}}{fig:p1_chrono}{}
+\begin{table}[H]
+  \centering
+  \small
+  \begin{tabular}{c l c}
+    \hline
+    \textbf{Flanc} & \textbf{Fonction testée} & \textbf{\texttt{reg\_obs} attendu} \\
+    \hline
+    15 et 25~µs & \textbf{Reset prioritaire} (\texttt{en\_sh} = \texttt{ser\_r} = 1) & \texttt{0000} \\
+    35~µs  & Décalage à droite, \texttt{ser\_r\_sti} = 1 & \texttt{1000} \\
+    45~µs  & Décalage à droite, \texttt{ser\_r\_sti} = 1 & \texttt{1100} \\
+    55~µs  & Décalage à droite, \texttt{ser\_r\_sti} = 1 & \texttt{1110} \\
+    65~µs  & Décalage à droite, \texttt{ser\_r\_sti} = 1 & \texttt{1111} \\
+    75 et 85~µs & Maintien (\texttt{en\_sh\_sti} = 0)   & \texttt{1111} \\
+    95~µs  & Décalage à droite, \texttt{ser\_r\_sti} = 0 & \texttt{0111} \\
+    105~µs & Décalage à droite, \texttt{ser\_r\_sti} = 0 & \texttt{0011} \\
+    110~µs & \textbf{Reset asynchrone} & \texttt{0000} \\
+    \hline
+  \end{tabular}
+  \caption{Tests de simulation de \texttt{srg4\_sh\_r}}
+  \label{tab:p1_tests}
+\end{table}
+
+\capture{p1_chrono_annote}{Chronogramme de \texttt{srg4\_sh\_r\_sim}}{fig:p1_chrono}{}
 
 \needspace{12\baselineskip}
 \subsection{Partie 2 : registre 8 bits}
 
 Le tableau~\ref{tab:p2_tests} donne, pour chaque flanc montant de
-\texttt{clock\_i} (repéré par une ligne rouge sur le chronogramme), la fonction testée et la valeur attendue sur \texttt{reg\_o}.
+\texttt{clock\_i}, la fonction testée et la valeur attendue sur \texttt{reg\_o}.
 Les valeurs observées sur le chronogramme (figures~\ref{fig:p2_chrono_a} et~\ref{fig:p2_chrono_b})
 correspondent toutes aux valeurs attendues.
 
@@ -39,7 +56,7 @@ correspondent toutes aux valeurs attendues.
     150~µs & \textbf{Load prioritaire sur le décalage} (\texttt{11110000}) & \texttt{1111 0000} \\
     165~µs & Décalage à droite, \texttt{ser\_r\_i} = 1          & \texttt{1111 1000} \\
     175~µs & Décalage à droite, \texttt{ser\_r\_i} = 1          & \texttt{1111 1100} \\
-    185~µs & \textbf{Reset asynchrone} (entre deux flancs)       & \texttt{0000 0000} \\
+    185~µs & \textbf{Reset asynchrone}      & \texttt{0000 0000} \\
     \hline
   \end{tabular}
   \caption{Tests de simulation de \texttt{srg8\_ld\_sh}}
@@ -53,7 +70,7 @@ correspondent toutes aux valeurs attendues.
 \subsection{Partie 3 : chenillard}
 
 Le tableau~\ref{tab:p3_tests} donne, pour chaque flanc montant de
-\texttt{clock\_i} (repéré par une ligne rouge sur le chronogramme), la fonction testée et la valeur attendue sur \texttt{LED\_out}.
+\texttt{clock\_i}, la fonction testée et la valeur attendue sur \texttt{LED\_out}.
 Les valeurs observées sur le chronogramme (figures~\ref{fig:p3_chrono_a} et~\ref{fig:p3_chrono_b})
 correspondent toutes aux valeurs attendues.
 
@@ -73,10 +90,10 @@ correspondent toutes aux valeurs attendues.
     155 et 165~µs     & Rotation à gauche                                  & \texttt{0000 0010}, \texttt{0000 0100} \\
     175~µs & Maintien (\texttt{enable\_i} = 0)                  & \texttt{0000 0100} \\
     185~µs & \textbf{Load prioritaire} (\texttt{11010000}) & \texttt{1101 0000} \\
-    200 à 230~µs     & Rotation à droite (pattern asymétrique)             & \texttt{0110 1000} $\rightarrow$ \texttt{0000 1101} \\
+    200 à 230~µs     & Rotation à droite            & \texttt{0110 1000} $\rightarrow$ \texttt{0000 1101} \\
     240~µs & Rebouclage avec plusieurs bits actifs              & \texttt{1000 0110} \\
     255~µs & Changement de sens (gauche)                        & \texttt{0000 1101} \\
-    260~µs & \textbf{Reset asynchrone} (entre deux flancs)      & \texttt{0000 0000} \\
+    260~µs & \textbf{Reset asynchrone}      & \texttt{0000 0000} \\
     \hline
   \end{tabular}
   \caption{Tests de simulation du chenillard}
